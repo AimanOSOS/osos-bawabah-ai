@@ -1,25 +1,21 @@
-[project]
+[tool.poetry]
 name = "bawabah-ai"
 version = "0.1.0"
 description = "An API server for various machine learning models."
-authors = [
-    {name = "Aiman Madan",email = "aiman.madan@osos.om"}
-]
+authors = ["Aiman Madan <aiman.madan@osos.om>"]
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
-dependencies = [
-    "fastapi (>=0.117.1,<0.118.0)",
-    "uvicorn (>=0.37.0,<0.38.0)",
-    "pydantic-settings (>=2.11.0,<3.0.0)",
-    "voxcpm (>=1.0.4,<2.0.0)",
-    "transformers[torch] (>=4.56.2,<5.0.0)",
-    "pillow (>=11.3.0,<12.0.0)",
-    "python-multipart (>=0.0.20,<0.0.21)",
-    "soundfile (>=0.13.1,<0.14.0)"
-]
+packages = [{include = "app"}]
 
-[tool.poetry]
-packages = [{include = "app", from = "src"}]
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+fastapi = ">=0.117.1,<0.118.0"
+uvicorn = ">=0.37.0,<0.38.0"
+pydantic-settings = ">=2.11.0,<3.0.0"
+voxcpm = ">=1.0.4,<2.0.0"
+transformers = {extras = ["torch"], version = ">=4.56.2,<5.0.0"}
+pillow = ">=11.3.0,<12.0.0"
+python-multipart = ">=0.0.20,<0.0.21"
+soundfile = ">=0.13.1,<0.14.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
