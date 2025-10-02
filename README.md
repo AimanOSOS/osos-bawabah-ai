@@ -22,8 +22,8 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd mlops-pipeline
+   git clone [<repository-url>](https://github.com/AimanOSOS/osos-bawabah-ai.git)
+   cd osos-bawabah-ai
    ```
 
 2. **Install dependencies**
@@ -39,17 +39,17 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 4. **Run the application**
    ```bash
-   poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 9696
    ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at `http://localhost:9696`
 
 ### API Documentation
 
 Once the server is running, you can access:
-- **Interactive API docs**: `http://localhost:8000/docs`
-- **ReDoc documentation**: `http://localhost:8000/redoc`
-- **OpenAPI schema**: `http://localhost:8000/openapi.json`
+- **Interactive API docs**: `http://localhost:9696/docs`
+- **ReDoc documentation**: `http://localhost:9696/redoc`
+- **OpenAPI schema**: `http://localhost:9696/openapi.json`
 
 ## API Endpoints
 
@@ -65,7 +65,7 @@ Once the server is running, you can access:
 ### Simple Text-to-Speech
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/text-to-speech/generate" \
+curl -X POST "http://localhost:9696/api/v1/text-to-speech/generate" \
      -H "Content-Type: application/json" \
      -d '{"text": "Hello, this is a test of the text to speech system."}'
 ```
@@ -73,7 +73,7 @@ curl -X POST "http://localhost:8000/api/v1/text-to-speech/generate" \
 ### Voice Cloning
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/text-to-speech/clone" \
+curl -X POST "http://localhost:9696/api/v1/text-to-speech/clone" \
      -F "text=Hello, this is my cloned voice." \
      -F "prompt_wav=@voice_sample.wav" \
      -F "prompt_text=This is the original text from the voice sample."
@@ -96,7 +96,7 @@ For detailed development information, including how to add new ML models, see th
 ## Project Structure
 
 ```
-mlops-pipeline/
+osos-bawabah-ai/
 ├── app/                    # Main application code
 │   ├── main.py            # FastAPI application entry point
 │   ├── config.py          # Configuration management
@@ -124,5 +124,6 @@ mlops-pipeline/
 [Add your license information here]
 
 ## Support
+
 
 For questions and support, please contact: aiman.madan@osos.om
