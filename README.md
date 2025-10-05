@@ -10,19 +10,48 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 - 🔧 **Configurable**: Environment-based configuration for easy deployment
 - 📦 **Model Caching**: Efficient model loading and caching for better performance
 - 🛡️ **Error Handling**: Comprehensive error handling and logging
+- 🐳 **Docker Support**: Easy deployment with Docker and Docker Compose
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.13+
+- Python 3.13+ (for local development)
 - Poetry (for dependency management)
+- Docker and Docker Compose (for containerized deployment)
 
-### Installation
+### Option 1: Docker Deployment (Recommended)
 
 1. **Clone the repository**
    ```bash
-   git clone [<repository-url>](https://github.com/AimanOSOS/osos-bawabah-ai.git)
+   git clone https://github.com/AimanOSOS/osos-bawabah-ai.git
+   cd osos-bawabah-ai
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   cp env.example .env
+   # Edit .env file with your preferred settings
+   ```
+
+3. **Build and run with Docker Compose**
+   ```bash
+   docker-compose up --build
+   ```
+
+   Or run in detached mode:
+   ```bash
+   docker-compose up --build -d
+   ```
+
+4. **Access the application**
+   The API will be available at `http://localhost:6060`
+
+### Option 2: Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/AimanOSOS/osos-bawabah-ai.git
    cd osos-bawabah-ai
    ```
 
@@ -39,17 +68,38 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 4. **Run the application**
    ```bash
-   poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 9696
+   poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 6060
    ```
 
-The API will be available at `http://localhost:9696`
+   The API will be available at `http://localhost:6060`
+
+### Docker Build Options
+
+#### Standard Build
+```bash
+docker build -f app/Dockerfile -t bawabah-ai .
+```
+
+#### CUDA-enabled Build (for GPU acceleration)
+```bash
+docker build -f app/Dockerfile --build-arg USE_CUDA=true -t bawabah-ai:cuda .
+```
+
+#### Run Docker Container
+```bash
+# Standard container
+docker run -p 6060:6060 bawabah-ai
+
+# CUDA-enabled container (requires nvidia-docker)
+docker run --gpus all -p 6060:6060 bawabah-ai:cuda
+```
 
 ### API Documentation
 
 Once the server is running, you can access:
-- **Interactive API docs**: `http://localhost:9696/docs`
-- **ReDoc documentation**: `http://localhost:9696/redoc`
-- **OpenAPI schema**: `http://localhost:9696/openapi.json`
+- **Interactive API docs**: `http://localhost:6060/docs`
+- **ReDoc documentation**: `http://localhost:6060/redoc`
+- **OpenAPI schema**: `http://localhost:6060/openapi.json`
 
 ## API Endpoints
 
@@ -65,7 +115,7 @@ Once the server is running, you can access:
 ### Simple Text-to-Speech
 
 ```bash
-curl -X POST "http://localhost:9696/api/v1/text-to-speech/generate" \
+curl -X POST "http://localhost:6060/api/v1/text-to-speech/generate" \
      -H "Content-Type: application/json" \
      -d '{"text": "Hello, this is a test of the text to speech system."}'
 ```
@@ -73,7 +123,7 @@ curl -X POST "http://localhost:9696/api/v1/text-to-speech/generate" \
 ### Voice Cloning
 
 ```bash
-curl -X POST "http://localhost:9696/api/v1/text-to-speech/clone" \
+curl -X POST "http://localhost:6060/api/v1/text-to-speech/clone" \
      -F "text=Hello, this is my cloned voice." \
      -F "prompt_wav=@voice_sample.wav" \
      -F "prompt_text=This is the original text from the voice sample."
@@ -98,7 +148,7 @@ For detailed development information, including how to add new ML models, see th
 ```
 osos-bawabah-ai/
 ├── app/                    # Main application code
-│   ├── main.py            # FastAPI application entry point
+│   ├── main.
 │   ├── config.py          # Configuration management
 │   ├── routers/           # API route handlers
 │   │   └── tts.py        # Text-to-speech endpoints

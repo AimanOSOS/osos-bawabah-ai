@@ -1,5 +1,25 @@
-FROM python:3.12-slim 
-FROM nvidia/cuda:12.2-devel-ubuntu22.04
+# Build argument to control CUDA usage
+ARG USE_CUDA=false
+
+# Base image for non-CUDA builds
+FROM python:3.12-slim as base-no-cuda
+
+# Base image for CUDA builds  
+FROM nvidia/cuda:12.2-devel-ubuntu22.04 as base-with-cuda
+
+# Select the appropriate base image based on USE_CUDA argument
+FROM base-no-cuda as base
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
+
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
 
@@ -21,13 +41,14 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+# Copy Poetry configuration files
+COPY pyproject.toml poetry.lock ./
+
+# Configure Poetry: Don't create virtual environment (we're in a container)
+RUN poetry config virtualenvs.create false
+
+# Install dependencies using Poetry
+RUN poetry install --only=main --no-interaction --no-ansi --no-root
 
 # Switch to the non-privileged user to run the application.
 USER appuser
