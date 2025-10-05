@@ -16,7 +16,7 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 ### Prerequisites
 
-- Python 3.13+ (for local development)
+- Python 3.12+ (for local development)
 - Poetry (for dependency management)
 - Docker and Docker Compose (for containerized deployment)
 
@@ -36,6 +36,13 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 3. **Build and run with Docker Compose**
    ```bash
+   # First time build (will be slow minutes due to ML dependencies)
+   docker-compose up --build
+   
+   # Subsequent builds (much faster minutes due to layer caching)
+   docker-compose up --build
+   
+   # Code-only changes (very fast - 10-30 seconds)
    docker-compose up --build
    ```
 
@@ -84,6 +91,33 @@ docker build -f app/Dockerfile -t bawabah-ai .
 ```bash
 docker build -f app/Dockerfile --build-arg USE_CUDA=true -t bawabah-ai:cuda .
 ```
+
+#### Optimized Build Commands
+
+**First time build (will be slow)**
+```bash
+docker-compose build
+```
+
+**Subsequent builds (much faster due to layer caching)**
+```bash
+docker-compose build
+```
+
+**For development with persistent cache**
+```bash
+# Build with cache volume for Hugging Face models
+docker-compose up --build
+
+# The cache volume will persist between builds, making subsequent builds even faster
+```
+
+#### Build Performance Tips
+
+- **Layer Caching**: Dependencies are cached in separate layers, so only code changes trigger fast rebuilds
+- **Cache Volume**: Hugging Face model cache persists between builds via Docker volume
+- **Dependency Changes**: Only rebuilds dependency layer when `pyproject.toml` or `poetry.lock` changes
+- **Code Changes**: Only rebuilds final layer when source code changes
 
 #### Run Docker Container
 ```bash
@@ -148,7 +182,7 @@ For detailed development information, including how to add new ML models, see th
 ```
 osos-bawabah-ai/
 ├── app/                    # Main application code
-│   ├── main.
+│   ├── main.py            # FastAPI appl
 │   ├── config.py          # Configuration management
 │   ├── routers/           # API route handlers
 │   │   └── tts.py        # Text-to-speech endpoints

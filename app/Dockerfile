@@ -10,11 +10,12 @@ FROM nvidia/cuda:12.2-devel-ubuntu22.04 as base-with-cuda
 # Select the appropriate base image based on USE_CUDA argument
 FROM base-no-cuda as base
 
-# Install system dependencies
+# Install system dependencies in a single layer
 RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
 # Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
@@ -35,25 +36,35 @@ ARG UID=10001
 RUN adduser \
     --disabled-password \
     --gecos "" \
-    --home "/nonexistent" \
+    --home "/home/appuser" \
     --shell "/sbin/nologin" \
-    --no-create-home \
     --uid "${UID}" \
     appuser
 
-# Copy Poetry configuration files
+# Create the home directory and set proper permissions
+RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
+
+# Set up Hugging Face cache directory
+RUN mkdir -p /home/appuser/.cache/huggingface && chown -R appuser:appuser /home/appuser/.cache
+
+# Set environment variables for Hugging Face cache
+ENV HF_HOME=/home/appuser/.cache/huggingface
+ENV TRANSFORMERS_CACHE=/home/appuser/.cache/huggingface/transformers
+ENV HF_DATASETS_CACHE=/home/appuser/.cache/huggingface/datasets
+
+# Copy Poetry configuration files FIRST for better layer caching
 COPY pyproject.toml poetry.lock ./
 
 # Configure Poetry: Don't create virtual environment (we're in a container)
 RUN poetry config virtualenvs.create false
 
-# Install dependencies using Poetry
+# Install dependencies using Poetry (this layer will be cached if dependencies don't change)
 RUN poetry install --only=main --no-interaction --no-ansi --no-root
 
 # Switch to the non-privileged user to run the application.
 USER appuser
 
-# Copy the source code into the container.
+# Copy the source code into the container (this layer changes most frequently)
 COPY . .
 
 # Expose the port that the application listens on.
