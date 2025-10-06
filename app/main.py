@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import tts
+from .routers import tts, rerank
 
 app = FastAPI(
     title="Bawabah AI",
@@ -9,6 +9,7 @@ app = FastAPI(
 
 # Include the routers from the routers module
 app.include_router(tts.router, prefix="/api/v1")
+app.include_router(rerank.router)
 
 @app.get("/", tags=["Health Check"])
 async def read_root():

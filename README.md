@@ -69,7 +69,7 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 3. **Set up environment variables**
    ```bash
-   cp env.example .env
+   cp .env.example .env
    # Edit .env file with your preferred settings
    ```
 
@@ -165,7 +165,7 @@ curl -X POST "http://localhost:6060/api/v1/text-to-speech/clone" \
 
 ## Configuration
 
-The application uses environment variables for configuration. See `env.example` for all available options:
+The application uses environment variables for configuration. See `.env.example` for all available options:
 
 - `TTS_MODEL_NAME`: Model to use for TTS (default: "openbmb/VoxCPM-0.5B")
 - `DEFAULT_INFERENCE_TIMESTEPS`: Number of inference steps (default: 10)
@@ -192,7 +192,7 @@ osos-bawabah-ai/
 ├── docs/                  # Detailed documentation
 ├── tests/                 # Test files
 ├── pyproject.toml         # Project dependencies and metadata
-└── env.example           # Environment variables template
+└── .env.example           # Environment variables template
 ```
 
 ## Contributing
