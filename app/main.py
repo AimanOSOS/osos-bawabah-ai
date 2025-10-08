@@ -10,8 +10,6 @@ app = FastAPI(
 
 # Register routers
 app.include_router(tts.router, prefix="/api/v1")
-app.include_router(itx.router, prefix="/api/v1")
-
 
 # Health check route
 @app.get("/", tags=["Health Check"])
