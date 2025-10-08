@@ -1,7 +1,4 @@
 from voxcpm import VoxCPM
-from transformers import AutoProcessor, AutoModelForVision2Seq
-import torch
-import os
 
 # A simple cache to store the loaded models
 _model_cache = {}
@@ -14,4 +11,4 @@ def get_tts_model() -> VoxCPM:
         print("Loading TTS model...")
         _model_cache[model_name] = VoxCPM.from_pretrained("openbmb/VoxCPM-0.5B")
         print("TTS model Loaded.")
-    return _model_cache[model_name] 
+    return _model_cache[model_name]

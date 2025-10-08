@@ -8,8 +8,7 @@ class Settings(BaseSettings):
 
     # Model Configuration
     tts_model_name: str = Field(
-        default="openbmb/VoxCPM-0.5B",
-        description="Text To Speech model"
+        default="openbmb/VoxCPM-0.5B", description="Text To Speech model"
     )
     model_cache_dir: Optional[str] = Field(
         default=None, description="Directory to cache models"
