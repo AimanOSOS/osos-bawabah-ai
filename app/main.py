@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import tts
+from .routers import tts, itx
 
 # Create FastAPI app only once
 app = FastAPI(
@@ -10,6 +10,7 @@ app = FastAPI(
 
 # Register routers
 app.include_router(tts.router, prefix="/api/v1")
+app.include_router(itx.router, prefix="/api/v1")
 
 
 # Health check route
