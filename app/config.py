@@ -77,7 +77,6 @@ class Settings(BaseSettings):
             "max_text_length": {"env": "MAX_TEXT_LENGTH"},
             "allowed_audio_formats": {"env": "ALLOWED_AUDIO_FORMATS"},
             "granite_vision_model_name": {"env": "GRANITE_VISION_MODEL_NAME"},
-            "model_cache_dir": {"env": "MODEL_CACHE_DIR"},
         }
 
 
