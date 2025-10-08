@@ -12,6 +12,10 @@ class Settings(BaseSettings):
         default="openbmb/VoxCPM-0.5B",
         description="Text To Speech model"
     )
+    granite_vision_model_name: str = Field(
+        default="ibm-granite/granite-vision-3.2-2b",
+        description="Granite Vision Image-to-Text model"
+    )
     model_cache_dir: Optional[str] = Field(
         default=None,
         description="Directory to cache models"
