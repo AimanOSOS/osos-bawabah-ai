@@ -1,0 +1,15 @@
+### Image To Text (auto boundary)
+POST http://localhost:6060/api/v1/image-to-text/generate
+Accept: application/json
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="image"; filename="figure.png"
+Content-Type: image/png
+
+< ./tests/assets/figure.png
+--boundary
+Content-Disposition: form-data; name="prompt"
+
+Describe this image.
+--boundary--
