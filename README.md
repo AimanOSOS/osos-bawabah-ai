@@ -24,7 +24,7 @@ A scalable FastAPI-based server for accessing machine learning models through RE
    cd osos-bawabah-ai
    ```
 
- **Set up environment variables**
+  **Set up environment variables**
    ```bash
    cp env.example .env
    # Edit .env file with your preferred settings
@@ -200,4 +200,5 @@ osos-bawabah-ai/
 
 
 For questions and support, please contact: aiman.madan@osos.om
+
 
