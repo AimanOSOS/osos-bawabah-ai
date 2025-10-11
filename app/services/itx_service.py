@@ -21,7 +21,7 @@ def generate_image_description(
         image = Image.open(io.BytesIO(image_data)).convert("RGB")
         logger.info(f"Processing image: {image_file.filename}")
 
-        # Step 1: Build conversation like in Colab
+        # Step 1: Build conversation
         conversation = [
             {
                 "role": "user",
