@@ -58,8 +58,12 @@ COPY pyproject.toml poetry.lock ./
 # Configure Poetry: Don't create virtual environment (we're in a container)
 RUN poetry config virtualenvs.create false
 
-# Install dependencies using Poetry (this layer will be cached if dependencies don't change)
-RUN poetry install --only=main --no-interaction --no-ansi --no-root
+# Print Poetry version to confirm it's installed
+RUN poetry --version
+
+# Debug installation (verbose output)
+RUN poetry install --no-interaction --no-ansi --no-root -vvv
+
 
 # Switch to the non-privileged user to run the application.
 USER appuser
