@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import tts, itx, stt
+from .routers import tts, image_to_text, stt
 
 # Create FastAPI app only once
 app = FastAPI(
@@ -10,7 +10,7 @@ app = FastAPI(
 
 # Register routers
 app.include_router(tts.router, prefix="/api/v1")
-app.include_router(itx.router, prefix="/api/v1")
+app.include_router(image_to_text.router, prefix="/api/v1")
 app.include_router(stt.router, prefix="/api/v1")
 
 
