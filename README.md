@@ -4,8 +4,6 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 
 ## Features
 
-- 🎤 **Text-to-Speech Generation**: Convert text to speech with high-quality audio output
-- 🎭 **Voice Cloning**: Clone voices from audio samples for personalized speech synthesis
 - ⚡ **FastAPI Framework**: High-performance async API with automatic OpenAPI documentation
 - 🔧 **Configurable**: Environment-based configuration for easy deployment
 - 📦 **Model Caching**: Efficient model loading and caching for better performance
@@ -20,21 +18,22 @@ A scalable FastAPI-based server for accessing machine learning models through RE
 - Poetry (for dependency management)
 - Docker and Docker Compose (for containerized deployment)
 
-### Option 1: Docker Deployment (Recommended)
-
-1. **Clone the repository**
+   **Clone the repository**
    ```bash
    git clone https://github.com/AimanOSOS/osos-bawabah-ai.git
    cd osos-bawabah-ai
    ```
 
-2. **Set up environment variables**
+  **Set up environment variables**
    ```bash
    cp env.example .env
    # Edit .env file with your preferred settings
    ```
 
-3. **Build and run with Docker Compose**
+### Option 1: Docker Deployment (Recommended)
+
+
+1. **Build and run with Docker Compose**
    ```bash
    # First time build (will be slow minutes due to ML dependencies)
    docker-compose up --build
@@ -51,29 +50,19 @@ A scalable FastAPI-based server for accessing machine learning models through RE
    docker-compose up --build -d
    ```
 
-4. **Access the application**
+2. **Access the application**
    The API will be available at `http://localhost:6060`
 
 ### Option 2: Local Development
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/AimanOSOS/osos-bawabah-ai.git
-   cd osos-bawabah-ai
-   ```
 
-2. **Install dependencies**
-   ```bash
-   poetry install
-   ```
-
-3. **Set up environment variables**
+1. **Set up environment variables**
    ```bash
    cp env.example .env
    # Edit .env file with your preferred settings
    ```
 
-4. **Run the application**
+2. **Run the application**
    ```bash
    poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 6060
    ```
@@ -201,7 +190,7 @@ osos-bawabah-ai/
 2. Create a feature branch
 3. Make your changes
 4. Add tests if applicable
-5. Submit a pull request
+5. Submit a pull request to dev branch
 
 ## License
 
@@ -211,3 +200,5 @@ osos-bawabah-ai/
 
 
 For questions and support, please contact: aiman.madan@osos.om
+
+
