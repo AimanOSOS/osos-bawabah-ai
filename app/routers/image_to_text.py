@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, UploadFile, Form, HTTPException, Background
 from pydantic import BaseModel
 import logging
 from starlette.concurrency import run_in_threadpool
-from ..services import itx_service
+from ..services import image_to_text_service
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ async def image_to_text(
     try:
         # Run in background to avoid blocking event loop (model is heavy)
         description = await run_in_threadpool(
-            itx_service.generate_image_description, image, prompt
+            image_to_text_service.generate_image_description, image, prompt
         )
 
         return {"description": description}
