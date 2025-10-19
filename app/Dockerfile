@@ -8,12 +8,13 @@ FROM python:3.12-slim as base-no-cuda
 FROM nvidia/cuda:12.2-devel-ubuntu22.04 as base-with-cuda
 
 # Select the appropriate base image based on USE_CUDA argument
-FROM base-no-cuda as base
+FROM base-${USE_CUDA:+with-}cuda as base
 
 # Install system dependencies in a single layer
 RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -63,7 +64,6 @@ RUN poetry --version
 
 # Debug installation (verbose output)
 RUN poetry install --no-interaction --no-ansi --no-root -vvv
-
 
 # Switch to the non-privileged user to run the application.
 USER appuser

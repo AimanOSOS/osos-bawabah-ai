@@ -128,12 +128,84 @@ curl -X POST "http://localhost:8000/api/v1/text-to-speech/clone" \
 
 ---
 
+## Speech-to-Text Endpoints
+
+### POST /api/v1/speech-to-text/generate
+
+Convert speech to text using Whisper Large model with detailed output.
+
+**Request Body:** `multipart/form-data`
+
+**Parameters:**
+- `audio_file` (file, required): Audio file for transcription
+  - **Supported formats**: MP3, WAV, WebM
+  - **Content types**: 
+    - `audio/mpeg`, `audio/mp3` (MP3)
+    - `audio/wav`, `audio/wave`, `audio/x-wav` (WAV)
+    - `audio/webm` (WebM)
+
+**Response:**
+- **Content-Type**: `application/json`
+- **Body**: Comprehensive transcription data with word-level timestamps
+
+**Example Response:**
+```json
+{
+  "detected_language": "en",
+  "full_text": "Hello, this is a test of the speech to text system.",
+  "total_duration": 5.2,
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.5,
+      "text": "Hello, this is a test",
+      "confidence": -0.8,
+      "words": [
+        {
+          "word": "Hello,",
+          "start": 0.0,
+          "end": 0.5,
+          "confidence": 0.95
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "model": "whisper-large",
+    "sample_rate": 16000,
+    "chunks_processed": 1,
+    "original_segments": 2,
+    "merged_segments": 2
+  }
+}
+```
+
+**Example:**
+```bash
+curl -X POST "http://localhost:8000/api/v1/speech-to-text/generate" \
+     -F "audio_file=@sample_audio.wav" \
+     -H "Accept: application/json"
+```
+
+**Error Responses:**
+- `400`: Invalid file format or unsupported audio type
+- `500`: Transcription failed
+
+**File Requirements:**
+- **Formats**: MP3, WAV, WebM
+- **Sample Rate**: Any (automatically converted to 16kHz)
+- **Duration**: No limit (automatically chunked for long files)
+- **Quality**: Higher quality audio produces better results
+
+---
+
 ## Configuration Parameters
 
 The following parameters can be configured via environment variables:
 
 ### Model Configuration
-- `TTS_MODEL_NAME`: Model name (default: "openbmb/VoxCPM-0.5B")
+- `TTS_MODEL_NAME`: TTS model name (default: "openbmb/VoxCPM-0.5B")
+- `WHISPER_MODEL_NAME`: STT model name (default: "whisper-large")
 - `MODEL_CACHE_DIR`: Directory for model caching
 
 ### TTS Parameters
@@ -145,6 +217,12 @@ The following parameters can be configured via environment variables:
 ### Audio Settings
 - `SAMPLE_RATE`: Audio sample rate in Hz (default: 16000)
 - `AUDIO_FORMAT`: Default audio format (default: "WAV")
+
+### STT Parameters
+- `STT_CHUNK_SIZE`: Audio chunk size in seconds (default: 30)
+- `STT_OVERLAP_SIZE`: Overlap between chunks in seconds (default: 2)
+- `STT_OVERLAP_THRESHOLD`: Word overlap detection threshold (default: 1.5)
+- `STT_GAP_THRESHOLD`: Segment gap threshold for merging (default: 2.0)
 
 ### API Settings
 - `MAX_TEXT_LENGTH`: Maximum text length for processing (default: 1000)
@@ -216,9 +294,24 @@ def clone_voice(text, prompt_audio_path, prompt_text):
     else:
         raise Exception(f"Voice cloning failed: {response.text}")
 
+# STT transcription
+def transcribe_audio(audio_file_path):
+    url = "http://localhost:8000/api/v1/speech-to-text/generate"
+    
+    with open(audio_file_path, "rb") as f:
+        files = {"audio_file": f}
+        response = requests.post(url, files=files)
+    
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise Exception(f"Transcription failed: {response.text}")
+
 # Usage
 generate_speech("Hello, world!")
 clone_voice("Hello, this is my voice", "sample.wav", "This is a sample")
+result = transcribe_audio("audio.wav")
+print(f"Transcribed: {result['full_text']}")
 ```
 
 ### JavaScript/Node.js
@@ -267,9 +360,33 @@ async function cloneVoice(text, promptAudioPath, promptText) {
     }
 }
 
+// STT transcription
+async function transcribeAudio(audioFilePath) {
+    try {
+        const formData = new FormData();
+        const file = fs.readFileSync(audioFilePath);
+        const blob = new Blob([file]);
+        formData.append('audio_file', blob, 'audio.wav');
+        
+        const response = await axios.post(
+            'http://localhost:8000/api/v1/speech-to-text/generate',
+            formData,
+            { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        
+        return response.data;
+    } catch (error) {
+        throw new Error(`Transcription failed: ${error.response?.data?.detail || error.message}`);
+    }
+}
+
 // Usage
 generateSpeech("Hello, world!")
     .then(filename => console.log(`Generated: ${filename}`))
+    .catch(error => console.error(error));
+
+transcribeAudio("audio.wav")
+    .then(result => console.log(`Transcribed: ${result.full_text}`))
     .catch(error => console.error(error));
 ```
 
@@ -291,6 +408,11 @@ curl -X POST "http://localhost:8000/api/v1/text-to-speech/clone" \
      -F "prompt_wav=@voice_sample.wav" \
      -F "prompt_text=This is the original text." \
      --output cloned_speech.wav
+
+# Speech-to-text transcription
+curl -X POST "http://localhost:8000/api/v1/speech-to-text/generate" \
+     -F "audio_file=@sample_audio.wav" \
+     -H "Accept: application/json"
 ```
 
 ## OpenAPI Documentation
@@ -314,4 +436,8 @@ Future versions will be available at `/api/v2/`, etc.
 - Initial release
 - Text-to-speech generation
 - Voice cloning functionality
+- Speech-to-text transcription with Whisper Large model
+- Word-level timestamps and confidence scores
+- Automatic language detection
+- Chunked audio processing for long files
 - Basic error handling and logging

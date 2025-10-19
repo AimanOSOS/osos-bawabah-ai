@@ -9,6 +9,7 @@ This directory contains detailed documentation for developers working on the Baw
 - **[Architecture](architecture.md)** - System architecture and design patterns
 - **[Deployment](deployment.md)** - Deployment strategies and configuration
 - **[Testing](testing.md)** - Testing guidelines and best practices
+- **[STT Module](stt.md)** - Speech-to-Text module documentation
 
 ## Quick Links
 
@@ -24,6 +25,7 @@ This directory contains detailed documentation for developers working on the Baw
 ### For API Integration
 1. See [API Reference](api.md) for complete endpoint documentation
 2. Review example requests and responses
+3. Check [STT Module](stt.md) for speech-to-text specific documentation
 
 ## Contributing to Documentation
 

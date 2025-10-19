@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: app/Dockerfile
+      args:
+        USE_CUDA: "true"  # Enable CUDA build
       # Enable BuildKit for better caching
       cache_from:
         - bawabah-ai:latest
@@ -11,7 +13,19 @@ services:
     # Add volume for Hugging Face cache to persist between builds
     volumes:
       - huggingface_cache:/home/appuser/.cache/huggingface
+    # GPU support configuration
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1  # Use 1 GPU (you can change to 2 for both GPUs)
+              capabilities: [gpu]
+    environment:
+      - CUDA_VISIBLE_DEVICES=0  # Use GPU 0 (change to 1 for GPU 1, or 0,1 for both)
+      - NVIDIA_VISIBLE_DEVICES=0
+      - PYTHONUNBUFFERED=1
 
 volumes:
   huggingface_cache:
-
+  
