@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 
 @router.post("/speech-to-text/generate", tags=["Speech to text"])
 async def speech_to_text(
-    audio_file: UploadFile = File(..., description="Audio file for transcription (supports mp3, wav, webm)"),
+    audio_file: UploadFile = File(
+        ..., description="Audio file for transcription (supports mp3, wav, webm)"
+    ),
 ):
     """
     Converts speech to text using Whisper Large model with detailed output.
@@ -23,18 +25,21 @@ async def speech_to_text(
 
         # Validate file type - allow specific audio formats
         allowed_content_types = [
-            "audio/mpeg",      # MP3
-            "audio/mp3",       # MP3 alternative
-            "audio/wav",       # WAV
-            "audio/wave",      # WAV alternative
-            "audio/webm",      # WebM
-            "audio/x-wav",     # WAV alternative
+            "audio/mpeg",  # MP3
+            "audio/mp3",  # MP3 alternative
+            "audio/wav",  # WAV
+            "audio/wave",  # WAV alternative
+            "audio/webm",  # WebM
+            "audio/x-wav",  # WAV alternative
         ]
-        
-        if not audio_file.content_type or audio_file.content_type not in allowed_content_types:
+
+        if (
+            not audio_file.content_type
+            or audio_file.content_type not in allowed_content_types
+        ):
             raise HTTPException(
-                status_code=400, 
-                detail="File must be an audio file in MP3, WAV, or WebM format"
+                status_code=400,
+                detail="File must be an audio file in MP3, WAV, or WebM format",
             )
 
         # Determine file extension based on content type
@@ -47,7 +52,9 @@ async def speech_to_text(
             file_extension = ".webm"
 
         # Save uploaded file to temporary location with proper extension
-        with tempfile.NamedTemporaryFile(delete=False, suffix=file_extension) as temp_file:
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=file_extension
+        ) as temp_file:
             content = await audio_file.read()
             temp_file.write(content)
             temp_file_path = temp_file.name
