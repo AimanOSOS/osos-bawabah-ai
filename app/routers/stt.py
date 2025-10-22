@@ -29,7 +29,7 @@ async def speech_to_text(
             "audio/mp3",  # MP3 alternative
             "audio/wav",  # WAV
             "audio/wave",  # WAV alternative
-            "audio/webm",  # WebM
+            "video/webm",  # WebM
             "audio/x-wav",  # WAV alternative
         ]
 
