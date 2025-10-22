@@ -11,7 +11,13 @@ services:
     # Add volume for Hugging Face cache to persist between builds
     volumes:
       - huggingface_cache:/home/appuser/.cache/huggingface
+      
+    environment:
+      - DOLPHIN_MODEL_PATH=/app/external/Dolphin/hf_model
+
 
 volumes:
   huggingface_cache:
+
+
 

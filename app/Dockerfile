@@ -1,37 +1,34 @@
-# Build argument to control CUDA usage
-ARG USE_CUDA=false
+# ============================================================
+# BAWABAH AI SERVER - DOLPHIN OCR INTEGRATION (CPU-ONLY BUILD)
+# ============================================================
 
-# Base image for non-CUDA builds
-FROM python:3.12-slim as base-no-cuda
+# Base image (lightweight Python 3.12)
+FROM python:3.12-slim as base
 
-# Base image for CUDA builds  
-FROM nvidia/cuda:12.2-devel-ubuntu22.04 as base-with-cuda
-
-# Select the appropriate base image based on USE_CUDA argument
-FROM base-no-cuda as base
-
-# Install system dependencies in a single layer
+# ------------------------------------------------------------
+# Install system dependencies
+# ------------------------------------------------------------
 RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    git \
+    ffmpeg \
+    vim \
+    && rm -rf /var/lib/apt/lists/* && apt-get clean
 
+# ------------------------------------------------------------
 # Install Poetry
+# ------------------------------------------------------------
 RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="/root/.local/bin:$PATH"
-
-# Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
+# ------------------------------------------------------------
+# Create non-root user
+# ------------------------------------------------------------
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -39,36 +36,76 @@ RUN adduser \
     --home "/home/appuser" \
     --shell "/sbin/nologin" \
     --uid "${UID}" \
-    appuser
+    appuser && \
+    mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
 
-# Create the home directory and set proper permissions
-RUN mkdir -p /home/appuser && chown -R appuser:appuser /home/appuser
-
-# Set up Hugging Face cache directory
+# ------------------------------------------------------------
+# Hugging Face cache setup
+# ------------------------------------------------------------
 RUN mkdir -p /home/appuser/.cache/huggingface && chown -R appuser:appuser /home/appuser/.cache
-
-# Set environment variables for Hugging Face cache
 ENV HF_HOME=/home/appuser/.cache/huggingface
 ENV TRANSFORMERS_CACHE=/home/appuser/.cache/huggingface/transformers
 ENV HF_DATASETS_CACHE=/home/appuser/.cache/huggingface/datasets
 
-# Copy Poetry configuration files FIRST for better layer caching
+# ------------------------------------------------------------
+# Install Python dependencies
+# ------------------------------------------------------------
 COPY pyproject.toml poetry.lock ./
-
-# Configure Poetry: Don't create virtual environment (we're in a container)
 RUN poetry config virtualenvs.create false
+## Install PyTorch CPU wheels first so Poetry won't pull an incompatible binary
+RUN pip install --no-cache-dir \
+    torch==2.4.0+cpu \
+    torchvision==0.19.0+cpu \
+    torchaudio==2.4.0+cpu \
+    --extra-index-url https://download.pytorch.org/whl/cpu || true
 
-# Install dependencies using Poetry (this layer will be cached if dependencies don't change)
-RUN poetry install --only=main --no-interaction --no-ansi --no-root
+# Then install project dependencies with Poetry (will use the preinstalled torch)
+RUN poetry install --only=main --no-interaction --no-ansi --no-root || true
 
-# Switch to the non-privileged user to run the application.
+# Install lightweight CPU-only dependencies
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn \
+    soundfile \
+    opencv-python-headless \
+    pymupdf \
+    numpy \
+    pydantic \
+    pydantic-settings \
+    pillow \
+    sentence-transformers \
+    torch==2.4.0+cpu \
+    torchvision==0.19.0+cpu \
+    torchaudio==2.4.0+cpu \
+    requests \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Skip VoxCPM if private
+RUN pip install --no-cache-dir voxcpm || echo "⚠️ VoxCPM not found on PyPI – skipping"
+
+# ------------------------------------------------------------
+# Clone Dolphin repo and add model weights
+# ------------------------------------------------------------
+RUN git clone https://github.com/bytedance/Dolphin.git /app/external/Dolphin \
+    && rm -rf /app/external/Dolphin/.git
+
+# Copy pre-downloaded Dolphin model weights if available
+COPY external/Dolphin/hf_model /app/external/Dolphin/hf_model
+
+# Add Dolphin repo to Python path
+ENV PYTHONPATH="/app/external/Dolphin:${PYTHONPATH}"
+
+# Set Dolphin model path (for service code)
+ENV DOLPHIN_MODEL_PATH=/app/external/Dolphin/hf_model
+
+# ------------------------------------------------------------
+# Switch to appuser and copy project files
+# ------------------------------------------------------------
 USER appuser
-
-# Copy the source code into the container (this layer changes most frequently)
 COPY . .
 
-# Expose the port that the application listens on.
+# ------------------------------------------------------------
+# Expose port and start FastAPI server
+# ------------------------------------------------------------
 EXPOSE 6060
-
-# Run the application.
-CMD uvicorn 'app.main:app' --host=0.0.0.0 --port=6060
+CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--port=6060"]
