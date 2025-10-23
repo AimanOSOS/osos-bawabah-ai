@@ -5,13 +5,14 @@ ARG USE_CUDA=false
 FROM python:3.12-slim as base-no-cuda
 
 # Base image for CUDA builds  
-FROM nvidia/cuda:12.2-devel-ubuntu22.04 as base-with-cuda
+FROM nvidia/cuda:12.2.2-devel-ubuntu22.04 AS base-with-cuda
 
 # Select the appropriate base image based on USE_CUDA argument
 FROM base-${USE_CUDA:+with-}cuda as base
 
 # Install system dependencies in a single layer
 RUN apt-get update && apt-get install -y \
+    python3 \
     curl \
     build-essential \
     ffmpeg \

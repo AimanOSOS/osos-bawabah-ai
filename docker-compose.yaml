@@ -21,7 +21,7 @@ services:
             - driver: nvidia
               count: 1  # Use 1 GPU (you can change to 2 for both GPUs)
               capabilities: [gpu]
-              memory: 30%
+          memory: "8G" # <-- This line was moved
     environment:
       - CUDA_VISIBLE_DEVICES=0  # Use GPU 0 (change to 1 for GPU 1, or 0,1 for both)
       - NVIDIA_VISIBLE_DEVICES=0
@@ -30,4 +30,3 @@ services:
 
 volumes:
   huggingface_cache:
-  

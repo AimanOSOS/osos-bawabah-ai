@@ -6,7 +6,7 @@ app = FastAPI(
     title="Bawabah AI",
     description="An API server for various machine learning models.",
     version="1.0.0",
-    root_path="/bawabah"   
+    root_path="/bawabah",
 )
 
 # Register routers
